@@ -8,21 +8,25 @@ export default function QueueManager() {
   const [dragIndex, setDragIndex] = useState(null);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <section className='rounded-lg border border-slate-200 bg-white p-4 shadow-sm'>
+      <div className='mb-4 flex flex-wrap items-center justify-between gap-3'>
         <div>
-          <h2 className="text-lg font-semibold text-slate-950">Waiting Queue</h2>
-          <p className="text-sm text-slate-500">Lowest game counts are prioritized automatically.</p>
+          <h2 className='text-lg font-semibold text-slate-950'>
+            Waiting Queue
+          </h2>
+          <p className='text-sm text-slate-500'>
+            Lowest game counts are prioritized automatically.
+          </p>
         </div>
         <button
           onClick={() => dispatch({ type: 'generateMatches' })}
-          className="inline-flex items-center gap-2 rounded-md bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className='inline-flex items-center gap-2 rounded-md bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800'
         >
-          <Shuffle className="h-4 w-4" />
-          Generate Next Matches
+          <Shuffle className='h-4 w-4' />
+          Next Match
         </button>
       </div>
-      <div className="space-y-2">
+      <div className='space-y-2'>
         {state.queue.map((id, index) => (
           <div
             key={id}
@@ -40,8 +44,10 @@ export default function QueueManager() {
               dragIndex === index ? 'dragging' : ''
             }`}
           >
-            <GripVertical className="h-4 w-4 flex-none text-slate-400" />
-            <span className="w-6 text-sm font-semibold text-slate-400">{index + 1}</span>
+            <GripVertical className='h-4 w-4 flex-none text-slate-400' />
+            <span className='w-6 text-sm font-semibold text-slate-400'>
+              {index + 1}
+            </span>
             <PlayerBadge id={id} subtle />
           </div>
         ))}
