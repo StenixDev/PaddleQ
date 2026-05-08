@@ -35,6 +35,9 @@ export default function StatsDashboard() {
               <th className="py-2 pr-3 text-right">W</th>
               <th className="py-2 pr-3 text-right">L</th>
               <th className="py-2 pr-3 text-right">Win %</th>
+              <th className="py-2 pr-3 text-right">PF</th>
+              <th className="py-2 pr-3 text-right">PA</th>
+              <th className="py-2 pr-3 text-right">+/-</th>
               <th className="py-2 pr-3">Partners</th>
               <th className="py-2">Opponents</th>
             </tr>
@@ -47,6 +50,12 @@ export default function StatsDashboard() {
                 <td className="py-2 pr-3 text-right text-emerald-700">{row.wins}</td>
                 <td className="py-2 pr-3 text-right text-rose-700">{row.losses}</td>
                 <td className="py-2 pr-3 text-right">{formatPercent(row.wins, row.games)}</td>
+                <td className="py-2 pr-3 text-right font-medium text-slate-900">{row.pointsFor}</td>
+                <td className="py-2 pr-3 text-right text-slate-600">{row.pointsAgainst}</td>
+                <td className={`py-2 pr-3 text-right font-medium ${row.pointDifferential >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  {row.pointDifferential > 0 ? '+' : ''}
+                  {row.pointDifferential}
+                </td>
                 <td className="max-w-52 py-2 pr-3 text-slate-500">{relatedNames(row.partners, playerMap) || 'None'}</td>
                 <td className="max-w-52 py-2 text-slate-500">{relatedNames(row.opponents, playerMap) || 'None'}</td>
               </tr>
