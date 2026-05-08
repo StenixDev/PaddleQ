@@ -1,4 +1,5 @@
 import { BarChart3 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { usePickleball } from '../state/PickleballContext.jsx';
 
 function formatPercent(wins, games) {
@@ -16,9 +17,28 @@ function relatedNames(map, playerMap) {
 
 export default function StatsDashboard() {
   const { state, stats, playerMap } = usePickleball();
-  const rows = state.players
-    .map((player) => stats[player.id])
-    .sort((a, b) => a.games - b.games || b.wins - a.wins || a.name.localeCompare(b.name));
+  const [sort, setSort] = useState({ key: 'games', direction: 'asc' });
+  const rows = useMemo(() => {
+    return state.players
+      .map((player) => stats[player.id])
+      .sort((a, b) => {
+        const direction = sort.direction === 'asc' ? 1 : -1;
+        if (sort.key === 'name') return a.name.localeCompare(b.name) * direction;
+        if (sort.key === 'winPercentage') {
+          const aValue = a.games ? a.wins / a.games : 0;
+          const bValue = b.games ? b.wins / b.games : 0;
+          return (aValue - bValue) * direction || a.name.localeCompare(b.name);
+        }
+        return ((a[sort.key] || 0) - (b[sort.key] || 0)) * direction || a.name.localeCompare(b.name);
+      });
+  }, [state.players, stats, sort]);
+
+  function changeSort(key) {
+    setSort((current) => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  }
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -30,14 +50,14 @@ export default function StatsDashboard() {
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="py-2 pr-3">Player</th>
-              <th className="py-2 pr-3 text-right">Games</th>
-              <th className="py-2 pr-3 text-right">W</th>
-              <th className="py-2 pr-3 text-right">L</th>
-              <th className="py-2 pr-3 text-right">Win %</th>
-              <th className="py-2 pr-3 text-right">PF</th>
-              <th className="py-2 pr-3 text-right">PA</th>
-              <th className="py-2 pr-3 text-right">+/-</th>
+              <SortableHeader label="Player" sortKey="name" sort={sort} onSort={changeSort} />
+              <SortableHeader label="Games" sortKey="games" sort={sort} onSort={changeSort} align="right" />
+              <SortableHeader label="W" sortKey="wins" sort={sort} onSort={changeSort} align="right" />
+              <SortableHeader label="L" sortKey="losses" sort={sort} onSort={changeSort} align="right" />
+              <SortableHeader label="Win %" sortKey="winPercentage" sort={sort} onSort={changeSort} align="right" />
+              <SortableHeader label="PF" sortKey="pointsFor" sort={sort} onSort={changeSort} align="right" />
+              <SortableHeader label="PA" sortKey="pointsAgainst" sort={sort} onSort={changeSort} align="right" />
+              <SortableHeader label="+/-" sortKey="pointDifferential" sort={sort} onSort={changeSort} align="right" />
               <th className="py-2 pr-3">Partners</th>
               <th className="py-2">Opponents</th>
             </tr>
@@ -64,5 +84,22 @@ export default function StatsDashboard() {
         </table>
       </div>
     </section>
+  );
+}
+
+function SortableHeader({ label, sortKey, sort, onSort, align = 'left' }) {
+  const active = sort.key === sortKey;
+  return (
+    <th className={`py-2 pr-3 ${align === 'right' ? 'text-right' : ''}`}>
+      <button
+        onClick={() => onSort(sortKey)}
+        className={`inline-flex items-center gap-1 rounded-md px-1 py-0.5 hover:bg-slate-100 ${
+          align === 'right' ? 'justify-end' : ''
+        } ${active ? 'text-slate-950' : 'text-slate-500'}`}
+      >
+        {label}
+        <span className="inline-block w-3 text-[10px]">{active ? (sort.direction === 'asc' ? '^' : 'v') : ''}</span>
+      </button>
+    </th>
   );
 }
