@@ -17,14 +17,6 @@ export default function MatchHistory() {
         </div>
         <div className='flex flex-wrap gap-2'>
           <button
-            onClick={() => exportDuprCsv(state.history, playerMap)}
-            disabled={!state.history.length}
-            className='inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <Download className='h-4 w-4' />
-            DUPR CSV
-          </button>
-          <button
             onClick={() => dispatch({ type: 'clearHistory' })}
             className='inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50'
           >
