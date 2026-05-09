@@ -108,6 +108,18 @@ function withRecalculatedLastOutcomes(players, history) {
   });
 }
 
+function getWinnerFromScores(scoreA, scoreB) {
+  if (scoreA === '' || scoreB === '' || scoreA === undefined || scoreB === undefined) {
+    return null;
+  }
+  const teamAScore = Number(scoreA);
+  const teamBScore = Number(scoreB);
+  if (Number.isNaN(teamAScore) || Number.isNaN(teamBScore) || teamAScore === teamBScore) {
+    return null;
+  }
+  return teamAScore > teamBScore ? 'A' : 'B';
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'addPlayer': {
@@ -233,10 +245,12 @@ function reducer(state, action) {
         (item) => item.id === action.matchId,
       );
       if (!match) return state;
+      const winner = getWinnerFromScores(match.scoreA, match.scoreB);
+      if (!winner) return state;
       const completed = {
         ...match,
         id: createId('match'),
-        winner: action.winner,
+        winner,
         completedAt: new Date().toISOString(),
       };
       const nextPlayers = state.players.map((player) => {
@@ -247,7 +261,7 @@ function reducer(state, action) {
           const playerTeam = match.teamA.includes(player.id) ? 'A' : 'B';
           return {
             ...player,
-            lastOutcome: playerTeam === action.winner ? 'win' : 'loss',
+            lastOutcome: playerTeam === winner ? 'win' : 'loss',
           };
         }
         return player;
@@ -267,21 +281,35 @@ function reducer(state, action) {
         history: [completed, ...state.history],
       };
     }
-    case 'updateHistoryScore':
+    case 'updateHistoryScore': {
+      const history = state.history.map((match) => {
+        if (match.id !== action.matchId) return match;
+        const nextMatch = { ...match, [action.field]: action.value };
+        return {
+          ...nextMatch,
+          winner: getWinnerFromScores(nextMatch.scoreA, nextMatch.scoreB) || nextMatch.winner,
+        };
+      });
       return {
         ...state,
-        history: state.history.map((match) =>
-          match.id === action.matchId
-            ? { ...match, [action.field]: action.value }
-            : match,
-        ),
+        history,
+        players: withRecalculatedLastOutcomes(state.players, history),
       };
+    }
     case 'updateHistoryWinner': {
       const history = state.history.map((match) =>
         match.id === action.matchId
           ? { ...match, winner: action.winner }
           : match,
       );
+      return {
+        ...state,
+        history,
+        players: withRecalculatedLastOutcomes(state.players, history),
+      };
+    }
+    case 'deleteHistoryMatch': {
+      const history = state.history.filter((match) => match.id !== action.matchId);
       return {
         ...state,
         history,

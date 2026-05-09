@@ -1,4 +1,4 @@
-import { GripVertical, Shuffle } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 import { useState } from 'react';
 import { usePickleball } from '../state/PickleballContext.jsx';
 import PlayerBadge from './PlayerBadge.jsx';
@@ -9,7 +9,7 @@ export default function QueueManager() {
 
   return (
     <section className='rounded-lg border border-slate-200 bg-white p-4 shadow-sm'>
-      <div className='mb-4 flex flex-wrap items-center justify-between gap-3'>
+      <div className='mb-4'>
         <div>
           <h2 className='text-lg font-semibold text-slate-950'>
             Waiting Queue
@@ -18,13 +18,6 @@ export default function QueueManager() {
             Lowest game counts are prioritized automatically.
           </p>
         </div>
-        <button
-          onClick={() => dispatch({ type: 'generateMatches' })}
-          className='inline-flex items-center gap-2 rounded-md bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800'
-        >
-          <Shuffle className='h-4 w-4' />
-          Generate Next Matches
-        </button>
       </div>
       <div className='space-y-2'>
         {state.queue.map((id, index) => (

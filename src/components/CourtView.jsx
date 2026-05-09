@@ -1,4 +1,4 @@
-import { SlidersHorizontal } from 'lucide-react';
+import { Shuffle, SlidersHorizontal } from 'lucide-react';
 import { usePickleball } from '../state/PickleballContext.jsx';
 import MatchCard from './MatchCard.jsx';
 
@@ -31,8 +31,14 @@ export default function CourtView() {
           ))}
         </div>
       ) : (
-        <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">
-          Generate next matches to assign courts.
+        <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+          <button
+            onClick={() => dispatch({ type: 'generateMatches' })}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          >
+            <Shuffle className="h-4 w-4" />
+            Generate Next Matches
+          </button>
         </div>
       )}
     </section>

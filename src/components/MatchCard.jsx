@@ -5,6 +5,8 @@ import PlayerBadge from './PlayerBadge.jsx';
 export default function MatchCard({ match }) {
   const { state, dispatch } = usePickleball();
   const currentMatchIds = [...match.teamA, ...match.teamB];
+  const hasBothScores = match.scoreA !== '' && match.scoreB !== '' && match.scoreA !== undefined && match.scoreB !== undefined;
+  const isTie = hasBothScores && Number(match.scoreA) === Number(match.scoreB);
   const assignedElsewhere = new Set(
     state.activeMatches
       .filter((item) => item.id !== match.id)
@@ -36,20 +38,15 @@ export default function MatchCard({ match }) {
           onChange={(value) => dispatch({ type: 'updateMatchScore', matchId: match.id, field: 'scoreB', value })}
         />
       </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+      <div className="mt-4">
         <button
-          onClick={() => dispatch({ type: 'recordResult', matchId: match.id, winner: 'A' })}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800 hover:bg-emerald-100"
+          onClick={() => dispatch({ type: 'recordResult', matchId: match.id })}
+          disabled={!hasBothScores || isTie}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+          title={isTie ? 'Scores must not be tied' : 'Record match result'}
         >
           <CheckCircle2 className="h-4 w-4" />
-          Team A Won
-        </button>
-        <button
-          onClick={() => dispatch({ type: 'recordResult', matchId: match.id, winner: 'B' })}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800 hover:bg-emerald-100"
-        >
-          <CheckCircle2 className="h-4 w-4" />
-          Team B Won
+          {hasBothScores ? 'Done' : 'Enter Scores'}
         </button>
       </div>
     </article>

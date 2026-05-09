@@ -1,10 +1,10 @@
-import { Download, History, RotateCcw } from 'lucide-react';
+import { History, RotateCcw, Trash2 } from 'lucide-react';
 import { usePickleball } from '../state/PickleballContext.jsx';
 
 import PlayerBadge from './PlayerBadge.jsx';
 
 export default function MatchHistory() {
-  const { state, playerMap, dispatch } = usePickleball();
+  const { state, dispatch } = usePickleball();
   const isSharedView = Boolean(state.shareMeta);
 
   return (
@@ -35,33 +35,27 @@ export default function MatchHistory() {
               key={match.id}
               className='rounded-md border border-slate-200 bg-slate-50 p-3'
             >
-              <div className='mb-2 flex items-center justify-between text-xs text-slate-500'>
-                <span>
-                  Game {state.history.length - index} · Court {match.court}
-                </span>
-                <span>{new Date(match.completedAt).toLocaleString()}</span>
-              </div>
-              {!isSharedView ? (
-                <label className='mb-3 flex flex-wrap items-center gap-2 text-sm text-slate-600'>
-                  <span className='text-xs font-bold uppercase tracking-wide text-slate-500'>
-                    Winner
+              <div className='mb-2 flex items-center justify-between gap-2 text-xs text-slate-500'>
+                <div className='min-w-0'>
+                  <span className='block truncate'>
+                    Game {state.history.length - index} · Court {match.court}
                   </span>
-                  <select
-                    value={match.winner}
-                    onChange={(event) =>
-                      dispatch({
-                        type: 'updateHistoryWinner',
-                        matchId: match.id,
-                        winner: event.target.value,
-                      })
-                    }
-                    className='rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20'
+                  <span className='block truncate'>{new Date(match.completedAt).toLocaleString()}</span>
+                </div>
+                {!isSharedView ? (
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Delete this match from history?')) {
+                        dispatch({ type: 'deleteHistoryMatch', matchId: match.id });
+                      }
+                    }}
+                    className='inline-flex h-8 w-8 flex-none items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:border-rose-200 hover:text-rose-700'
+                    title='Delete match'
                   >
-                    <option value='A'>Team 1</option>
-                    <option value='B'>Team 2</option>
-                  </select>
-                </label>
-              ) : null}
+                    <Trash2 className='h-4 w-4' />
+                  </button>
+                ) : null}
+              </div>
               <div className='grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-center'>
                 <HistoryTeam
                   players={match.teamA}
