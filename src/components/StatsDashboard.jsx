@@ -69,33 +69,7 @@ export default function StatsDashboard() {
             ) : null}
           </div>
         </div>
-        {!state.shareMeta ? (
-          <div className='flex flex-wrap gap-2'>
-            <button
-              onClick={() => setShowSave(true)}
-              className='inline-flex items-center gap-2 rounded-md bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800'
-            >
-              <Save className='h-4 w-4' />
-              Save
-            </button>
-            <button
-              onClick={() => {
-                if (
-                  window.confirm(
-                    'Delete all players, queue, matches, stats, and saved local data?',
-                  )
-                ) {
-                  dispatch({ type: 'deleteAllData' });
-                  setShareLink('');
-                }
-              }}
-              className='inline-flex items-center gap-2 rounded-md border border-rose-200 bg-white px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50'
-            >
-              <Trash2 className='h-4 w-4' />
-              Delete
-            </button>
-          </div>
-        ) : null}
+        {!state.shareMeta ? <div className='flex flex-wrap gap-2'></div> : null}
       </div>
       <div className='mb-3 grid gap-2 lg:hidden'>
         <label className='text-xs font-bold uppercase tracking-wide text-slate-500'>
