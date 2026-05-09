@@ -9,6 +9,7 @@ import { usePickleball } from './state/PickleballContext.jsx';
 
 export default function App() {
   const { state } = usePickleball();
+  const isSharedView = Boolean(state.shareMeta);
   const activePlayers = state.players.filter((player) => !player.isResting);
   const availableCourts = Math.min(
     state.courtCount,
@@ -30,22 +31,30 @@ export default function App() {
               PaddleQ
             </h1>
           </div>
-          <div className='grid grid-cols-3 gap-2 text-center'>
-            <Metric label='Players' value={activePlayers.length} />
-            <Metric label='Courts' value={state.courtCount} />
-            <Metric label='Playable' value={availableCourts} />
-          </div>
+          {!isSharedView ? (
+            <div className='grid grid-cols-3 gap-2 text-center'>
+              <Metric label='Players' value={activePlayers.length} />
+              <Metric label='Courts' value={state.courtCount} />
+              <Metric label='Playable' value={availableCourts} />
+            </div>
+          ) : null}
         </div>
       </header>
 
-      <div className='mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[360px_1fr] lg:px-8'>
-        <aside className='space-y-5'>
-          <PlayerManager />
-          <QueueManager />
-          <PartnerLockManager />
-        </aside>
+      <div
+        className={`mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:px-8 ${
+          isSharedView ? '' : 'lg:grid-cols-[360px_1fr]'
+        }`}
+      >
+        {!isSharedView ? (
+          <aside className='space-y-5'>
+            <PlayerManager />
+            <QueueManager />
+            <PartnerLockManager />
+          </aside>
+        ) : null}
         <div className='space-y-5'>
-          <CourtView />
+          {!isSharedView ? <CourtView /> : null}
           <StatsDashboard />
           <MatchHistory />
         </div>

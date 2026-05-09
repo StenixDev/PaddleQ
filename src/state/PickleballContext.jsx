@@ -1,9 +1,11 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from 'react';
 import { generateNextMatches } from '../logic/scheduler.js';
 import { getPlayerStats } from '../logic/stats.js';
@@ -31,8 +33,9 @@ const initialState = {
 
 function loadState() {
   try {
+    const searchParams = new URLSearchParams(window.location.search);
     const shared = decodeShareState(
-      new URLSearchParams(window.location.search).get('share'),
+      searchParams.get('s') || searchParams.get('share'),
     );
     if (shared?.players && shared?.history) {
       const players = shared.players.map((player) => ({
@@ -315,7 +318,6 @@ function reducer(state, action) {
         })),
       };
     case 'deleteAllData':
-      localStorage.removeItem(STORAGE_KEY);
       return initialState;
     default:
       return state;
@@ -325,9 +327,21 @@ function reducer(state, action) {
 const PickleballContext = createContext(null);
 
 export function PickleballProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, undefined, loadState);
+  const [state, rawDispatch] = useReducer(reducer, undefined, loadState);
+  const skipNextPersist = useRef(false);
+  const dispatch = useCallback((action) => {
+    if (action.type === 'deleteAllData') {
+      skipNextPersist.current = true;
+    }
+    rawDispatch(action);
+  }, []);
 
   useEffect(() => {
+    if (skipNextPersist.current) {
+      localStorage.removeItem(STORAGE_KEY);
+      skipNextPersist.current = false;
+      return;
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 

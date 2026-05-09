@@ -25,6 +25,7 @@ export default function StatsDashboard() {
   const [shareDate, setShareDate] = useState(
     state.shareMeta?.date || new Date().toISOString().slice(0, 10),
   );
+  const hasStats = state.history.length > 0;
   const rows = useMemo(() => {
     return state.players
       .map((player) => stats[player.id])
@@ -69,7 +70,30 @@ export default function StatsDashboard() {
             ) : null}
           </div>
         </div>
-        {!state.shareMeta ? <div className='flex flex-wrap gap-2'></div> : null}
+        {state.shareMeta ? (
+          <button
+            onClick={() => {
+              dispatch({ type: 'deleteAllData' });
+              const url = new URL(window.location.href);
+              url.searchParams.delete('s');
+              url.searchParams.delete('share');
+              window.history.replaceState(null, '', url.toString());
+            }}
+            className='inline-flex items-center gap-2 rounded-md bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800'
+          >
+            New Game
+          </button>
+        ) : (
+          <div className='flex flex-wrap gap-2'>
+            <button
+              onClick={() => setShowSave(true)}
+              className={`items-center gap-2 rounded-md bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 ${hasStats ? 'inline-flex' : 'hidden'}`}
+            >
+              <Save className='h-4 w-4' />
+              Save
+            </button>
+          </div>
+        )}
       </div>
       <div className='mb-3 grid gap-2 lg:hidden'>
         <label className='text-xs font-bold uppercase tracking-wide text-slate-500'>
@@ -214,24 +238,24 @@ export default function StatsDashboard() {
                 <td className='py-2 pr-3 font-medium text-slate-900'>
                   {row.name}
                 </td>
-                <td className='py-2 pr-3 text-center'>{row.games}</td>
-                <td className='py-2 pr-3 text-center text-emerald-700'>
+                <td className='py-2 pr-3 text-right'>{row.games}</td>
+                <td className='py-2 pr-3 text-right text-emerald-700'>
                   {row.wins}
                 </td>
-                <td className='py-2 pr-3 text-center text-rose-700'>
+                <td className='py-2 pr-3 text-right text-rose-700'>
                   {row.losses}
                 </td>
-                <td className='py-2 pr-3 text-center'>
+                <td className='py-2 pr-3 text-right'>
                   {formatPercent(row.wins, row.games)}
                 </td>
-                <td className='py-2 pr-3 text-center font-medium text-slate-900'>
+                <td className='py-2 pr-3 text-right font-medium text-slate-900'>
                   {row.pointsFor}
                 </td>
-                <td className='py-2 pr-3 text-center text-slate-600'>
+                <td className='py-2 pr-3 text-right text-slate-600'>
                   {row.pointsAgainst}
                 </td>
                 <td
-                  className={`py-2 pr-3 text-center font-medium ${row.pointDifferential >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}
+                  className={`py-2 pr-3 text-right font-medium ${row.pointDifferential >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}
                 >
                   {row.pointDifferential > 0 ? '+' : ''}
                   {row.pointDifferential}
