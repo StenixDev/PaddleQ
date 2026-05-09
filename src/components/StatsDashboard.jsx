@@ -214,24 +214,24 @@ export default function StatsDashboard() {
                 <td className='py-2 pr-3 font-medium text-slate-900'>
                   {row.name}
                 </td>
-                <td className='py-2 pr-3 text-right'>{row.games}</td>
-                <td className='py-2 pr-3 text-right text-emerald-700'>
+                <td className='py-2 pr-3 text-center'>{row.games}</td>
+                <td className='py-2 pr-3 text-center text-emerald-700'>
                   {row.wins}
                 </td>
-                <td className='py-2 pr-3 text-right text-rose-700'>
+                <td className='py-2 pr-3 text-center text-rose-700'>
                   {row.losses}
                 </td>
-                <td className='py-2 pr-3 text-right'>
+                <td className='py-2 pr-3 text-center'>
                   {formatPercent(row.wins, row.games)}
                 </td>
-                <td className='py-2 pr-3 text-right font-medium text-slate-900'>
+                <td className='py-2 pr-3 text-center font-medium text-slate-900'>
                   {row.pointsFor}
                 </td>
-                <td className='py-2 pr-3 text-right text-slate-600'>
+                <td className='py-2 pr-3 text-center text-slate-600'>
                   {row.pointsAgainst}
                 </td>
                 <td
-                  className={`py-2 pr-3 text-right font-medium ${row.pointDifferential >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}
+                  className={`py-2 pr-3 text-center font-medium ${row.pointDifferential >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}
                 >
                   {row.pointDifferential > 0 ? '+' : ''}
                   {row.pointDifferential}
