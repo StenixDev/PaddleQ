@@ -314,6 +314,9 @@ function reducer(state, action) {
           lastOutcome: 'new',
         })),
       };
+    case 'deleteAllData':
+      localStorage.removeItem(STORAGE_KEY);
+      return initialState;
     default:
       return state;
   }
