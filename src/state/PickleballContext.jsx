@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useReducer } from 'react
 import { generateNextMatches } from '../logic/scheduler.js';
 import { getPlayerStats } from '../logic/stats.js';
 import { createId } from '../utils/ids.js';
+import { decodeShareState } from '../utils/share.js';
 
 const STORAGE_KEY = 'pickleball-rotation-state-v1';
 
@@ -18,11 +19,29 @@ const initialState = {
   courtCount: 2,
   activeMatches: [],
   history: [],
-  lockedPartners: []
+  lockedPartners: [],
+  shareMeta: null
 };
 
 function loadState() {
   try {
+    const shared = decodeShareState(new URLSearchParams(window.location.search).get('share'));
+    if (shared?.players && shared?.history) {
+      const players = shared.players.map((player) => ({ isResting: false, lastOutcome: 'new', ...player }));
+      return {
+        ...initialState,
+        players,
+        queue: [],
+        activeMatches: [],
+        history: shared.history.map((match) => ({ scoreA: '', scoreB: '', ...match })),
+        shareMeta: {
+          title: shared.title || 'Shared Pickleball Results',
+          date: shared.date || '',
+          savedAt: shared.savedAt || ''
+        }
+      };
+    }
+
     const stored = localStorage.getItem(STORAGE_KEY);
     const parsed = stored ? JSON.parse(stored) : initialState;
     const players = parsed.players.map((player) => ({ isResting: false, lastOutcome: 'new', ...player }));
