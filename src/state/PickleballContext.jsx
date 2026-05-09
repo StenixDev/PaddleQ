@@ -24,7 +24,7 @@ const seedPlayers = [].map((name) => ({
 const initialState = {
   players: seedPlayers,
   queue: seedPlayers.map((player) => player.id),
-  courtCount: 2,
+  courtCount: 1,
   activeMatches: [],
   history: [],
   lockedPartners: [],
@@ -109,12 +109,21 @@ function withRecalculatedLastOutcomes(players, history) {
 }
 
 function getWinnerFromScores(scoreA, scoreB) {
-  if (scoreA === '' || scoreB === '' || scoreA === undefined || scoreB === undefined) {
+  if (
+    scoreA === '' ||
+    scoreB === '' ||
+    scoreA === undefined ||
+    scoreB === undefined
+  ) {
     return null;
   }
   const teamAScore = Number(scoreA);
   const teamBScore = Number(scoreB);
-  if (Number.isNaN(teamAScore) || Number.isNaN(teamBScore) || teamAScore === teamBScore) {
+  if (
+    Number.isNaN(teamAScore) ||
+    Number.isNaN(teamBScore) ||
+    teamAScore === teamBScore
+  ) {
     return null;
   }
   return teamAScore > teamBScore ? 'A' : 'B';
@@ -287,7 +296,9 @@ function reducer(state, action) {
         const nextMatch = { ...match, [action.field]: action.value };
         return {
           ...nextMatch,
-          winner: getWinnerFromScores(nextMatch.scoreA, nextMatch.scoreB) || nextMatch.winner,
+          winner:
+            getWinnerFromScores(nextMatch.scoreA, nextMatch.scoreB) ||
+            nextMatch.winner,
         };
       });
       return {
@@ -309,7 +320,9 @@ function reducer(state, action) {
       };
     }
     case 'deleteHistoryMatch': {
-      const history = state.history.filter((match) => match.id !== action.matchId);
+      const history = state.history.filter(
+        (match) => match.id !== action.matchId,
+      );
       return {
         ...state,
         history,

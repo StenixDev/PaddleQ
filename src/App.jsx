@@ -46,6 +46,10 @@ export default function App() {
           isSharedView ? '' : 'lg:grid-cols-[360px_1fr]'
         }`}
       >
+        <div className='block lg:hidden'>
+          <CourtView />
+        </div>
+
         {!isSharedView ? (
           <aside className='space-y-5'>
             <PlayerManager />
@@ -54,7 +58,11 @@ export default function App() {
           </aside>
         ) : null}
         <div className='space-y-5'>
-          {!isSharedView ? <CourtView /> : null}
+          {!isSharedView ? (
+            <div className='hidden lg:block'>
+              <CourtView />
+            </div>
+          ) : null}
           <StatsDashboard />
           <MatchHistory />
         </div>
