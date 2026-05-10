@@ -29,11 +29,23 @@ export default function CourtView() {
         </label>
       </div>
       {state.activeMatches.length ? (
-        <div className='grid gap-4'>
-          {state.activeMatches.map((match) => (
-            <MatchCard key={match.id} match={match} />
-          ))}
-        </div>
+        <>
+          <div className='grid gap-4'>
+            {state.activeMatches.map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))}
+          </div>
+
+          <div className=' p-2 text-center pt-6'>
+            <button
+              onClick={() => dispatch({ type: 'generateMatches' })}
+              className='inline-flex items-center justify-center gap-2 rounded-md bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800'
+            >
+              <Shuffle className='h-4 w-4' />
+              Generate Next Matches
+            </button>
+          </div>
+        </>
       ) : (
         <div className='rounded-md border border-dashed border-slate-300 bg-slate-50 p-6 text-center'>
           <button

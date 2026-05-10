@@ -46,9 +46,11 @@ export default function App() {
           isSharedView ? '' : 'lg:grid-cols-[360px_1fr]'
         }`}
       >
-        {/* <div className='hidden lg:block'>
-          <CourtView />
-        </div> */}
+        {!isSharedView ? (
+          <div className='block lg:hidden'>
+            <CourtView />
+          </div>
+        ) : null}
 
         {!isSharedView ? (
           <aside className='space-y-5'>
