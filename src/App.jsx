@@ -16,6 +16,10 @@ export default function App() {
     Math.floor(activePlayers.length / 4),
   );
 
+  const params = new URLSearchParams(window.location.search);
+
+  const shareLink = params.get('s');
+
   return (
     <main className='min-h-screen'>
       <header className='border-b border-slate-200 bg-white'>
@@ -65,7 +69,7 @@ export default function App() {
               <CourtView />
             </div>
           ) : null}
-          <StatsDashboard colapse={true} />
+          <StatsDashboard colapse={shareLink ? false : true} />
           <MatchHistory />
         </div>
       </div>
