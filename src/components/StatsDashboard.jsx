@@ -16,7 +16,7 @@ function relatedNames(map, playerMap) {
     .join(', ');
 }
 
-export default function StatsDashboard() {
+export default function StatsDashboard({ colapse }) {
   const { state, stats, playerMap, dispatch } = usePickleball();
   const [sort, setSort] = useState({ key: 'games', direction: 'asc' });
   const [showSave, setShowSave] = useState(false);
@@ -25,6 +25,8 @@ export default function StatsDashboard() {
   const [shareDate, setShareDate] = useState(
     state.shareMeta?.date || new Date().toISOString().slice(0, 10),
   );
+  const [isCollapsed, setIsCollapsed] = useState(colapse);
+
   const hasStats = state.history.length > 0;
   const rows = useMemo(() => {
     return state.players
@@ -92,10 +94,21 @@ export default function StatsDashboard() {
               <Save className='h-4 w-4' />
               Save
             </button>
+
+            {/* Collapse button only on mobile/tablet */}
+            <button
+              type='button'
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className='rounded-md border border-slate-200 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50 lg:hidden'
+            >
+              {isCollapsed ? 'Show' : 'Hide'}
+            </button>
           </div>
         )}
       </div>
-      <div className='mb-3 grid gap-2 lg:hidden'>
+      <div
+        className={`${isCollapsed ? 'hidden' : 'block'} mb-3 grid gap-2 lg:hidden`}
+      >
         <label className='text-xs font-bold uppercase tracking-wide text-slate-500'>
           Sort by
           <select
@@ -119,7 +132,9 @@ export default function StatsDashboard() {
         </label>
       </div>
 
-      <div className='space-y-3 lg:hidden'>
+      <div
+        className={`${isCollapsed ? 'hidden' : 'block'} space-y-3 lg:hidden`}
+      >
         {rows.map((row) => (
           <article
             key={row.id}
@@ -337,7 +352,7 @@ function SaveDialog({
               value={title}
               onChange={(event) => onTitleChange(event.target.value)}
               className='mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-normal outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20'
-              placeholder='Saturday Open Play'
+              placeholder='Open Play'
             />
           </label>
           <label className='text-sm font-medium text-slate-700'>
