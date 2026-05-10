@@ -19,7 +19,11 @@ export default function MatchHistory() {
         {!isSharedView ? (
           <div className='flex flex-wrap gap-2'>
             <button
-              onClick={() => dispatch({ type: 'clearHistory' })}
+              onClick={() => {
+                if (window.confirm('Are you sure you want to proceed?')) {
+                  dispatch({ type: 'clearHistory' });
+                }
+              }}
               className='inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50'
             >
               <RotateCcw className='h-4 w-4' />
@@ -40,13 +44,18 @@ export default function MatchHistory() {
                   <span className='block truncate'>
                     Game {state.history.length - index} · Court {match.court}
                   </span>
-                  <span className='block truncate'>{new Date(match.completedAt).toLocaleString()}</span>
+                  <span className='block truncate'>
+                    {new Date(match.completedAt).toLocaleString()}
+                  </span>
                 </div>
                 {!isSharedView ? (
                   <button
                     onClick={() => {
                       if (window.confirm('Delete this match from history?')) {
-                        dispatch({ type: 'deleteHistoryMatch', matchId: match.id });
+                        dispatch({
+                          type: 'deleteHistoryMatch',
+                          matchId: match.id,
+                        });
                       }
                     }}
                     className='inline-flex h-8 w-8 flex-none items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:border-rose-200 hover:text-rose-700'
