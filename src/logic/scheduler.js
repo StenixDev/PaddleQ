@@ -26,7 +26,10 @@ function matchWasRecent(teamA, teamB, history, depth = 8) {
   const matchPlayers = new Set([...teamA, ...teamB]);
   return history.slice(0, depth).some((match) => {
     const pastPlayers = new Set([...match.teamA, ...match.teamB]);
-    return matchPlayers.size === pastPlayers.size && [...matchPlayers].every((id) => pastPlayers.has(id));
+    return (
+      matchPlayers.size === pastPlayers.size &&
+      [...matchPlayers].every((id) => pastPlayers.has(id))
+    );
   });
 }
 
@@ -39,16 +42,24 @@ function outcomeScore(group, stats) {
 
 function lockedPairPenalty(team, lockedPartners) {
   const key = getPairKey(team);
-  const playerLocks = lockedPartners.filter((lock) => team.includes(lock.a) || team.includes(lock.b));
-  if (playerLocks.some((lock) => getPairKey([lock.a, lock.b]) === key)) return -120;
+  const playerLocks = lockedPartners.filter(
+    (lock) => team.includes(lock.a) || team.includes(lock.b),
+  );
+  if (playerLocks.some((lock) => getPairKey([lock.a, lock.b]) === key))
+    return -120;
   return playerLocks.length * 90;
 }
 
 function scoreTeam(team, stats, history, lockedPartners) {
   const partnerKey = getPairKey(team);
   const [a, b] = team;
-  const repeatedPartnerCount = (stats[a]?.partners?.[b] || 0) + (stats[b]?.partners?.[a] || 0);
-  return repeatedPartnerCount * 14 + (pairWasRecent(partnerKey, history) ? 45 : 0) + lockedPairPenalty(team, lockedPartners);
+  const repeatedPartnerCount =
+    (stats[a]?.partners?.[b] || 0) + (stats[b]?.partners?.[a] || 0);
+  return (
+    repeatedPartnerCount * 14 +
+    (pairWasRecent(partnerKey, history) ? 45 : 0) +
+    lockedPairPenalty(team, lockedPartners)
+  );
 }
 
 function scoreMatch(teamA, teamB, stats, history, lockedPartners) {
@@ -57,8 +68,13 @@ function scoreMatch(teamA, teamB, stats, history, lockedPartners) {
   const gameSpread = Math.max(...games) - Math.min(...games);
   const totalGames = games.reduce((sum, value) => sum + value, 0);
   const opponentRepeats = teamA.reduce(
-    (sum, id) => sum + teamB.reduce((inner, opponent) => inner + (stats[id]?.opponents?.[opponent] || 0), 0),
-    0
+    (sum, id) =>
+      sum +
+      teamB.reduce(
+        (inner, opponent) => inner + (stats[id]?.opponents?.[opponent] || 0),
+        0,
+      ),
+    0,
   );
 
   return (
@@ -77,58 +93,82 @@ function teamOptions(group, stats, history, lockedPartners) {
   const options = [
     [
       [p1, p2],
-      [p3, p4]
+      [p3, p4],
     ],
     [
       [p1, p3],
-      [p2, p4]
+      [p2, p4],
     ],
     [
       [p1, p4],
-      [p2, p3]
-    ]
+      [p2, p3],
+    ],
   ];
   return options
     .map(([teamA, teamB]) => ({
       teamA,
       teamB,
-      score: scoreMatch(teamA, teamB, stats, history, lockedPartners)
+      score: scoreMatch(teamA, teamB, stats, history, lockedPartners),
     }))
     .sort((a, b) => a.score - b.score);
 }
 
-export function generateNextMatches({ players, queue, history, courtCount, lockedPartners }) {
-  const activeIds = queue.filter((id) => players.some((player) => player.id === id && !player.isResting));
+export function generateNextMatches({
+  players,
+  queue,
+  history,
+  courtCount,
+  lockedPartners,
+}) {
+  // Only active players
+  const activeIds = queue.filter((id) =>
+    players.some((player) => player.id === id && !player.isResting),
+  );
+
   const stats = getPlayerStats(players, history);
+
+  // Total matches possible
   const targetMatches = Math.min(courtCount, Math.floor(activeIds.length / 4));
+
   const selected = [];
-  const used = new Set();
+
+  // Copy queue so we can consume players in order
+  const waitingQueue = [...activeIds];
 
   for (let court = 1; court <= targetMatches; court += 1) {
-    const pool = activeIds.filter((id) => !used.has(id));
-    const groups = combination(pool, 4);
-    if (!groups.length) break;
+    // Always take first 4 players in queue
+    const group = waitingQueue.splice(0, 4);
 
-    const best = groups
-      .map((group) => {
-        const teams = teamOptions(group, stats, history, lockedPartners)[0];
-        const waitingPenalty = group.reduce((sum, id, index) => sum + activeIds.indexOf(id) * (index + 1), 0);
-        return { group, ...teams, score: teams.score + waitingPenalty };
-      })
-      .sort((a, b) => a.score - b.score)[0];
+    // Not enough players
+    if (group.length < 4) break;
 
-    best.group.forEach((id) => used.add(id));
+    // Only optimize team arrangement
+    const bestTeams = teamOptions(group, stats, history, lockedPartners)[0];
+
     selected.push({
       id: `pending-${Date.now()}-${court}`,
       court,
-      teamA: best.teamA,
-      teamB: best.teamB,
+      teamA: bestTeams.teamA,
+      teamB: bestTeams.teamB,
       scoreA: '',
       scoreB: '',
-      status: 'pending'
+      status: 'pending',
     });
   }
 
-  const nextQueue = [...activeIds.filter((id) => used.has(id)), ...activeIds.filter((id) => !used.has(id))];
-  return { matches: selected, queue: nextQueue };
+  // Rebuild queue
+  // Players who played go to back automatically
+  const usedPlayers = selected.flatMap((match) => [
+    ...match.teamA,
+    ...match.teamB,
+  ]);
+
+  const remainingPlayers = activeIds.filter((id) => !usedPlayers.includes(id));
+
+  const nextQueue = [...remainingPlayers, ...usedPlayers];
+
+  return {
+    matches: selected,
+    queue: nextQueue,
+  };
 }

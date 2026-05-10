@@ -40,8 +40,32 @@ export default function App() {
           ) : null}
         </div>
       </header>
-      <div class='flex items-center justify-center h-screen'>
-        <h1 className='text-3xl'>Fine-tuning things behind the scenes</h1>
+
+      <div
+        className={`mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:px-8 ${
+          isSharedView ? '' : 'lg:grid-cols-[360px_1fr]'
+        }`}
+      >
+        {/* <div className='hidden lg:block'>
+          <CourtView />
+        </div> */}
+
+        {!isSharedView ? (
+          <aside className='space-y-5'>
+            <PlayerManager />
+            <QueueManager />
+            <PartnerLockManager />
+          </aside>
+        ) : null}
+        <div className='space-y-5'>
+          {!isSharedView ? (
+            <div className='hidden lg:block'>
+              <CourtView />
+            </div>
+          ) : null}
+          <StatsDashboard colapse={true} />
+          <MatchHistory />
+        </div>
       </div>
     </main>
   );
