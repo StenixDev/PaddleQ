@@ -10,9 +10,6 @@ export default function CourtView() {
       <div className='mb-4 flex flex-wrap items-center justify-between gap-3'>
         <div>
           <h2 className='text-lg font-semibold text-slate-950'>Courts</h2>
-          <p className='text-sm text-slate-500'>
-            Active matches ready for result recording.
-          </p>
         </div>
         <label className='inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700'>
           <SlidersHorizontal className='h-4 w-4' />
