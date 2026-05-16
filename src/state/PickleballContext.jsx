@@ -191,11 +191,39 @@ function reducer(state, action) {
     case 'setCourtCount':
       return { ...state, courtCount: Math.max(1, Number(action.count) || 1) };
     case 'generateMatches': {
-      const generated = generateNextMatches(state);
+      const activePlayerIds = new Set(
+        state.activeMatches.flatMap((match) => [...match.teamA, ...match.teamB]),
+      );
+      const occupiedCourts = new Set(
+        state.activeMatches.map((match) => match.court),
+      );
+      const openCourts = Array.from(
+        { length: state.courtCount },
+        (_, index) => index + 1,
+      ).filter((court) => !occupiedCourts.has(court));
+
+      if (!openCourts.length) return state;
+
+      const availableQueue = state.queue.filter((id) => !activePlayerIds.has(id));
+      const generated = generateNextMatches({
+        ...state,
+        queue: availableQueue,
+        courtCount: openCourts.length,
+      });
+      const matches = generated.matches.map((match, index) => ({
+        ...match,
+        court: openCourts[index],
+      }));
+      const activeQueue = state.queue.filter((id) => activePlayerIds.has(id));
+      const nextQueue = [
+        ...activeQueue,
+        ...generated.queue.filter((id) => !activePlayerIds.has(id)),
+      ];
+
       return {
         ...state,
-        activeMatches: generated.matches,
-        queue: generated.queue,
+        activeMatches: [...state.activeMatches, ...matches],
+        queue: nextQueue,
       };
     }
     case 'substitutePlayer': {

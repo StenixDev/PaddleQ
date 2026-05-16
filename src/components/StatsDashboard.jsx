@@ -1,7 +1,8 @@
 import { BarChart3, Copy, Save, Trash2, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePickleball } from '../state/PickleballContext.jsx';
 import { createShareLink } from '../utils/share.js';
+import emailjs from '@emailjs/browser';
 
 function formatPercent(wins, games) {
   if (!games) return '0%';
@@ -119,8 +120,9 @@ export default function StatsDashboard({ colapse }) {
             }}
             className='mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-slate-800 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20'
           >
-            <option value='games:asc'>Games, low to high</option>
             <option value='games:desc'>Games, high to low</option>
+            <option value='games:asc'>Games, low to high</option>
+
             <option value='wins:desc'>Wins, high to low</option>
             <option value='losses:desc'>Losses, high to low</option>
             <option value='winPercentage:desc'>Win %, high to low</option>
@@ -322,10 +324,34 @@ function SaveDialog({
 }) {
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    if (!copied) return;
+
+    async function saveShareLink() {
+      try {
+        await emailjs.send(
+          'service_wcb7mxh', // service id
+          'template_wj4tx1l', // template id
+          {
+            title,
+            link,
+          },
+          'ZhjpIv5vuzI16M4jH', // public key
+        );
+      } catch (error) {
+        console.error(error);
+        alert('Failed to save sharable link');
+      }
+    }
+
+    saveShareLink();
+  }, [copied]);
+
   async function copyLink() {
     if (!link) return;
     try {
       await navigator.clipboard.writeText(link);
+
       setCopied(true);
     } catch {
       setCopied(false);
