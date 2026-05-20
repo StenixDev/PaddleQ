@@ -9,14 +9,14 @@ export default function QueueManager() {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
-    <section className='rounded-lg border border-slate-200 bg-white p-4 shadow-sm'>
+    <section className='glass-panel p-4'>
       <div className='mb-4 flex items-center justify-between'>
         <div className='mb-4'>
           <div>
-            <h2 className='text-lg font-semibold text-slate-950'>
+            <h2 className='text-lg font-semibold text-slate-100'>
               Waiting Queue
             </h2>
-            <p className='text-sm text-slate-500'>
+            <p className='text-sm text-slate-400'>
               Lowest game counts are prioritized automatically.
             </p>
           </div>
@@ -26,7 +26,7 @@ export default function QueueManager() {
         <button
           type='button'
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className='rounded-md border border-slate-200 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50 lg:hidden'
+          className='ghost-action px-3 py-1 lg:hidden'
         >
           {isCollapsed ? 'Show' : 'Hide'}
         </button>
@@ -45,7 +45,7 @@ export default function QueueManager() {
               setDragIndex(null);
             }}
             onDragEnd={() => setDragIndex(null)}
-            className={`flex cursor-grab items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 ${
+            className={`glass-card flex cursor-grab items-center gap-2 px-3 py-2 ${
               dragIndex === index ? 'dragging' : ''
             }`}
           >

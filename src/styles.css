@@ -3,13 +3,18 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: #f4f7f5;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(233, 248, 91, 0.18), transparent 22rem),
+    radial-gradient(circle at 86% 4%, rgba(126, 87, 255, 0.24), transparent 26rem),
+    radial-gradient(circle at 70% 78%, rgba(33, 163, 109, 0.22), transparent 30rem),
+    linear-gradient(135deg, #06110d 0%, #0a1714 46%, #111827 100%);
+  color: #e7f5ec;
 }
 
 button,
@@ -20,4 +25,43 @@ select {
 
 .dragging {
   opacity: 0.55;
+}
+
+::selection {
+  background: #e9f85b;
+  color: #063727;
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-xl border border-white/10 bg-slate-950/55 shadow-[0_18px_70px_rgba(0,0,0,0.34)] backdrop-blur-xl;
+  }
+
+  .glass-panel-strong {
+    @apply rounded-xl border border-white/10 bg-slate-950/70 shadow-[0_22px_80px_rgba(0,0,0,0.42)] backdrop-blur-xl;
+  }
+
+  .glass-card {
+    @apply rounded-lg border border-white/10 bg-white/[0.06] shadow-sm backdrop-blur-md;
+  }
+
+  .primary-action {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-ball-300/80 bg-ball-400 px-4 py-2 text-sm font-black text-court-900 shadow-[0_10px_28px_rgba(216,235,33,0.28)] hover:bg-ball-300;
+  }
+
+  .court-action {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-court-500/30 bg-court-700 px-3 py-2 text-sm font-bold text-white shadow-[0_10px_28px_rgba(15,111,77,0.28)] hover:bg-court-600;
+  }
+
+  .ghost-action {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm font-medium text-slate-200 shadow-sm backdrop-blur-md hover:bg-white/[0.12];
+  }
+
+  .danger-action {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-paddle-400/30 bg-paddle-500/10 px-3 py-2 text-sm font-bold text-paddle-100 shadow-sm backdrop-blur-md hover:bg-paddle-500/20;
+  }
+
+  .field-control {
+    @apply rounded-lg border border-white/10 bg-white/[0.07] px-3 py-2 text-sm text-slate-100 outline-none backdrop-blur-md placeholder:text-slate-500 focus:border-ball-300/70 focus:ring-2 focus:ring-ball-300/20;
+  }
 }

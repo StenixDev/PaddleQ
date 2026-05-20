@@ -15,12 +15,12 @@ export default function PlayerManager() {
   }
 
   return (
-    <section className='rounded-lg border border-slate-200 bg-white p-4 shadow-sm'>
+    <section className='glass-panel p-4'>
       <div className='mb-4 flex items-center justify-between'>
         <div className='flex items-center gap-2'>
-          <h2 className='text-lg font-semibold text-slate-950'>Players</h2>
+          <h2 className='text-lg font-semibold text-slate-100'>Players</h2>
 
-          <span className='rounded-md bg-slate-100 px-2 py-1 text-sm text-slate-700'>
+          <span className='rounded-md bg-ball-100 px-2 py-1 text-sm font-semibold text-court-900'>
             {state.players.length}
           </span>
         </div>
@@ -29,7 +29,7 @@ export default function PlayerManager() {
         <button
           type='button'
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className='rounded-md border border-slate-200 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50 lg:hidden'
+          className='ghost-action px-3 py-1 lg:hidden'
         >
           {isCollapsed ? 'Show' : 'Hide'}
         </button>
@@ -41,12 +41,12 @@ export default function PlayerManager() {
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className='min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20'
+            className='field-control min-w-0 flex-1'
             placeholder='Add player'
           />
 
           <button
-            className='inline-flex h-10 w-10 items-center justify-center rounded-md bg-court-700 text-white hover:bg-court-500'
+            className='inline-flex h-10 w-10 items-center justify-center rounded-lg bg-court-700 text-white shadow-sm hover:bg-court-600'
             title='Add player'
           >
             <Plus className='h-5 w-5' />
@@ -58,7 +58,7 @@ export default function PlayerManager() {
             <div
               key={player.id}
               className={`flex items-center gap-2 rounded-md ${
-                player.isResting ? 'bg-amber-50 p-1' : ''
+                player.isResting ? 'bg-ball-400/10 p-1' : ''
               }`}
             >
               <input
@@ -70,15 +70,15 @@ export default function PlayerManager() {
                     name: event.target.value,
                   })
                 }
-                className='min-w-0 flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-court-500'
+                className='field-control min-w-0 flex-1'
               />
 
               <button
                 onClick={() => dispatch({ type: 'toggleRest', id: player.id })}
                 className={`inline-flex h-9 w-9 items-center justify-center rounded-md border ${
                   player.isResting
-                    ? 'border-court-500 bg-court-50 text-court-700 hover:bg-court-100'
-                    : 'border-slate-200 text-slate-500 hover:border-amber-200 hover:text-amber-700'
+                    ? 'border-ball-300/40 bg-ball-400/15 text-ball-100 hover:bg-ball-400/20'
+                    : 'border-white/10 text-slate-400 hover:border-ball-300/40 hover:text-ball-100'
                 }`}
                 title={player.isResting ? 'Resume player' : 'Rest player'}
               >
@@ -93,7 +93,7 @@ export default function PlayerManager() {
                 onClick={() =>
                   dispatch({ type: 'removePlayer', id: player.id })
                 }
-                className='inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-rose-200 hover:text-rose-600'
+                className='inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 text-slate-400 hover:border-paddle-400/40 hover:text-paddle-100'
                 title='Remove player'
               >
                 <Trash2 className='h-4 w-4' />
@@ -103,7 +103,7 @@ export default function PlayerManager() {
         </div>
 
         {state.players.some((player) => player.isResting) ? (
-          <p className='mt-3 text-sm text-amber-700'>
+          <p className='mt-3 text-sm text-ball-100'>
             Resting players remain checked in but are skipped by generated
             matches.
           </p>
