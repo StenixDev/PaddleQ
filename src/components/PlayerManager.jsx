@@ -26,6 +26,20 @@ export default function PlayerManager() {
         </div>
 
         {/* Collapse button only on mobile/tablet */}
+
+        {state.players.length > 0 && (
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to proceed?')) {
+                dispatch({ type: 'deleteAllData' });
+              }
+            }}
+            className='primary-action px-3'
+          >
+            New Game
+          </button>
+        )}
+
         <button
           type='button'
           onClick={() => setIsCollapsed(!isCollapsed)}
