@@ -129,6 +129,20 @@ function getWinnerFromScores(scoreA, scoreB) {
   return teamAScore > teamBScore ? 'A' : 'B';
 }
 
+function matchRespectsPartnerLocks(match, lockedPartners) {
+  const players = [...match.teamA, ...match.teamB];
+  return lockedPartners.every((lock) => {
+    const hasA = players.includes(lock.a);
+    const hasB = players.includes(lock.b);
+    if (!hasA && !hasB) return true;
+    if (hasA !== hasB) return false;
+    return (
+      (match.teamA.includes(lock.a) && match.teamA.includes(lock.b)) ||
+      (match.teamB.includes(lock.a) && match.teamB.includes(lock.b))
+    );
+  });
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'addPlayer': {
@@ -244,7 +258,7 @@ function reducer(state, action) {
         if (match.id !== action.matchId) return match;
         if ([...match.teamA, ...match.teamB].includes(action.toId))
           return match;
-        return {
+        const nextMatch = {
           ...match,
           teamA: match.teamA.map((id) =>
             id === action.fromId ? action.toId : id,
@@ -253,7 +267,22 @@ function reducer(state, action) {
             id === action.fromId ? action.toId : id,
           ),
         };
+        return matchRespectsPartnerLocks(nextMatch, state.lockedPartners)
+          ? nextMatch
+          : match;
       });
+      const currentMatch = state.activeMatches.find(
+        (match) => match.id === action.matchId,
+      );
+      const updatedMatch = nextMatches.find((match) => match.id === action.matchId);
+      if (
+        !currentMatch ||
+        !updatedMatch ||
+        (currentMatch.teamA.join('|') === updatedMatch.teamA.join('|') &&
+          currentMatch.teamB.join('|') === updatedMatch.teamB.join('|'))
+      ) {
+        return state;
+      }
 
       const fromPlayer = state.players.find(
         (player) => player.id === action.fromId,
@@ -374,7 +403,13 @@ function reducer(state, action) {
                   (lock.a === b && lock.b === a)
                 ),
             )
-          : [...state.lockedPartners, { id: createId('lock'), a, b }],
+          : [
+              ...state.lockedPartners.filter(
+                (lock) =>
+                  lock.a !== a && lock.b !== a && lock.a !== b && lock.b !== b,
+              ),
+              { id: createId('lock'), a, b },
+            ],
       };
     }
     case 'clearHistory':

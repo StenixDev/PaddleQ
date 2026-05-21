@@ -43,11 +43,32 @@ function outcomeScore(group, stats) {
 function lockedPairPenalty(team, lockedPartners) {
   const key = getPairKey(team);
   const playerLocks = lockedPartners.filter(
-    (lock) => team.includes(lock.a) || team.includes(lock.b),
+    (lock) => team.includes(lock.a) && team.includes(lock.b),
   );
   if (playerLocks.some((lock) => getPairKey([lock.a, lock.b]) === key))
     return -120;
-  return playerLocks.length * 90;
+  return 0;
+}
+
+function groupRespectsPartnerLocks(group, lockedPartners) {
+  return lockedPartners.every((lock) => {
+    const hasA = group.includes(lock.a);
+    const hasB = group.includes(lock.b);
+    return hasA === hasB;
+  });
+}
+
+function teamsRespectPartnerLocks(teamA, teamB, lockedPartners) {
+  return lockedPartners.every((lock) => {
+    const teamAHasBoth = teamA.includes(lock.a) && teamA.includes(lock.b);
+    const teamBHasBoth = teamB.includes(lock.a) && teamB.includes(lock.b);
+    const neitherTeamHasLock =
+      !teamA.includes(lock.a) &&
+      !teamA.includes(lock.b) &&
+      !teamB.includes(lock.a) &&
+      !teamB.includes(lock.b);
+    return teamAHasBoth || teamBHasBoth || neitherTeamHasLock;
+  });
 }
 
 function scoreTeam(team, stats, history, lockedPartners) {
@@ -105,6 +126,9 @@ function teamOptions(group, stats, history, lockedPartners) {
     ],
   ];
   return options
+    .filter(([teamA, teamB]) =>
+      teamsRespectPartnerLocks(teamA, teamB, lockedPartners),
+    )
     .map(([teamA, teamB]) => ({
       teamA,
       teamB,
@@ -127,29 +151,36 @@ export function generateNextMatches({
 
   const stats = getPlayerStats(players, history);
 
-  // Total matches possible
-  const targetMatches = Math.min(courtCount, Math.floor(activeIds.length / 4));
-
   const selected = [];
+  const used = new Set();
 
-  // Copy queue so we can consume players in order
-  const waitingQueue = [...activeIds];
+  for (let court = 1; court <= courtCount; court += 1) {
+    const pool = activeIds.filter((id) => !used.has(id));
+    if (pool.length < 4) break;
 
-  for (let court = 1; court <= targetMatches; court += 1) {
-    // Always take first 4 players in queue
-    const group = waitingQueue.splice(0, 4);
+    const best = combination(pool, 4)
+      .filter((group) => groupRespectsPartnerLocks(group, lockedPartners))
+      .map((group) => {
+        const options = teamOptions(group, stats, history, lockedPartners);
+        if (!options.length) return null;
+        const waitingPenalty = group.reduce(
+          (sum, id, index) => sum + activeIds.indexOf(id) * (index + 1),
+          0,
+        );
+        return { group, ...options[0], score: options[0].score + waitingPenalty };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.score - b.score)[0];
 
-    // Not enough players
-    if (group.length < 4) break;
+    if (!best) break;
 
-    // Only optimize team arrangement
-    const bestTeams = teamOptions(group, stats, history, lockedPartners)[0];
+    best.group.forEach((id) => used.add(id));
 
     selected.push({
       id: `pending-${Date.now()}-${court}`,
       court,
-      teamA: bestTeams.teamA,
-      teamB: bestTeams.teamB,
+      teamA: best.teamA,
+      teamB: best.teamB,
       scoreA: '',
       scoreB: '',
       status: 'pending',
@@ -158,10 +189,7 @@ export function generateNextMatches({
 
   // Rebuild queue
   // Players who played go to back automatically
-  const usedPlayers = selected.flatMap((match) => [
-    ...match.teamA,
-    ...match.teamB,
-  ]);
+  const usedPlayers = [...used];
 
   const remainingPlayers = activeIds.filter((id) => !usedPlayers.includes(id));
 

@@ -65,11 +65,17 @@ function SelectPlayer({ value, onChange, players }) {
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className='field-control'
+      className='field-control w-full border-ball-300/30 bg-slate-950/85 font-semibold text-slate-100 shadow-inner'
     >
-      <option value=''>Select player</option>
+      <option value='' className='bg-slate-950 text-slate-300'>
+        Select player
+      </option>
       {players.map((player) => (
-        <option key={player.id} value={player.id}>
+        <option
+          key={player.id}
+          value={player.id}
+          className='bg-slate-950 text-slate-100'
+        >
           {player.name}
         </option>
       ))}
