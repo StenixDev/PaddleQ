@@ -63,7 +63,7 @@ export default function StatsDashboard({ colapse }) {
           <BarChart3 className='h-5 w-5 text-ball-300' />
           <div>
             <h2 className='text-lg font-semibold text-slate-100'>
-              Player Stats
+              Leaderboard
             </h2>
             {state.shareMeta ? (
               <p className='text-sm text-slate-400'>
@@ -138,10 +138,7 @@ export default function StatsDashboard({ colapse }) {
         className={`${isCollapsed ? 'hidden' : 'block'} space-y-3 lg:hidden`}
       >
         {rows.map((row) => (
-          <article
-            key={row.id}
-            className='glass-card p-3'
-          >
+          <article key={row.id} className='glass-card p-3'>
             <div className='mb-3 flex items-center justify-between gap-2'>
               <h3 className='min-w-0 truncate font-semibold text-slate-100'>
                 {row.name}
@@ -152,12 +149,12 @@ export default function StatsDashboard({ colapse }) {
             </div>
             <div className='grid grid-cols-4 gap-2 text-center'>
               <MobileMetric label='Games' value={row.games} />
+              <MobileMetric label='W' value={row.wins} tone='text-court-200' />
               <MobileMetric
-                label='W'
-                value={row.wins}
-                tone='text-court-200'
+                label='L'
+                value={row.losses}
+                tone='text-paddle-100'
               />
-              <MobileMetric label='L' value={row.losses} tone='text-paddle-100' />
               <MobileMetric
                 label='+/-'
                 value={`${row.pointDifferential > 0 ? '+' : ''}${row.pointDifferential}`}
@@ -390,10 +387,7 @@ function SaveDialog({
               className='field-control mt-1 w-full font-normal'
             />
           </label>
-          <button
-            onClick={onSave}
-            className='court-action'
-          >
+          <button onClick={onSave} className='court-action'>
             <Save className='h-4 w-4' />
             Generate Share Link
           </button>
