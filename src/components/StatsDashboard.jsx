@@ -137,11 +137,11 @@ export default function StatsDashboard({ colapse }) {
       <div
         className={`${isCollapsed ? 'hidden' : 'block'} space-y-3 lg:hidden`}
       >
-        {rows.map((row) => (
+        {rows.map((row, index) => (
           <article key={row.id} className='glass-card p-3'>
             <div className='mb-3 flex items-center justify-between gap-2'>
               <h3 className='min-w-0 truncate font-semibold text-slate-100'>
-                {row.name}
+                #{index + 1} - {row.name}
               </h3>
               <span className='rounded-md bg-white/[0.06] px-2 py-1 text-sm font-bold text-slate-300'>
                 {formatPercent(row.wins, row.games)}
@@ -187,6 +187,7 @@ export default function StatsDashboard({ colapse }) {
         <table className='min-w-full text-left text-sm'>
           <thead className='border-b border-white/10 text-xs uppercase tracking-wide text-slate-400'>
             <tr>
+              <td></td>
               <SortableHeader
                 label='Player'
                 sortKey='name'
@@ -247,8 +248,11 @@ export default function StatsDashboard({ colapse }) {
             </tr>
           </thead>
           <tbody className='divide-y divide-white/10'>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <tr key={row.id}>
+                <td className='py-2 pr-3 font-medium text-slate-100'>
+                  {index + 1}
+                </td>
                 <td className='py-2 pr-3 font-medium text-slate-100'>
                   {row.name}
                 </td>
