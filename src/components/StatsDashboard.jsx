@@ -19,7 +19,10 @@ function relatedNames(map, playerMap) {
 
 export default function StatsDashboard({ colapse }) {
   const { state, stats, playerMap, dispatch } = usePickleball();
-  const [sort, setSort] = useState({ key: 'wins', direction: 'desc' });
+  const [sort, setSort] = useState({
+    key: 'pointDifferential',
+    direction: 'desc',
+  });
   const [showSave, setShowSave] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [shareTitle, setShareTitle] = useState(state.shareMeta?.title || '');
