@@ -69,7 +69,7 @@ export default function App() {
               <CourtView />
             </div>
           ) : null}
-          <StatsDashboard colapse={shareLink ? false : true} />
+          <StatsDashboard />
           <MatchHistory />
         </div>
       </div>

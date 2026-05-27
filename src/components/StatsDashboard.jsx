@@ -29,7 +29,7 @@ export default function StatsDashboard({ colapse }) {
   const [shareDate, setShareDate] = useState(
     state.shareMeta?.date || new Date().toISOString().slice(0, 10),
   );
-  const [isCollapsed, setIsCollapsed] = useState(colapse);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const hasStats = state.history.length > 0;
   const rows = useMemo(() => {
@@ -50,6 +50,8 @@ export default function StatsDashboard({ colapse }) {
         );
       });
   }, [state.players, stats, sort]);
+
+  let ranksNumbering = 0;
 
   function changeSort(key) {
     setSort((current) => ({
@@ -140,6 +142,10 @@ export default function StatsDashboard({ colapse }) {
       <div
         className={`${isCollapsed ? 'hidden' : 'block'} space-y-3 lg:hidden`}
       >
+        {console.log('ranks constant:', ranksNumbering)}
+
+        {console.log(sort.key === 'pointDifferential')}
+
         {rows.map((row, index) => (
           <article key={row.id} className='glass-card p-3'>
             <div className='mb-3 flex items-center justify-between gap-2'>
@@ -185,7 +191,6 @@ export default function StatsDashboard({ colapse }) {
           </article>
         ))}
       </div>
-
       <div className='hidden lg:block'>
         <table className='min-w-full text-left text-sm'>
           <thead className='border-b border-white/10 text-xs uppercase tracking-wide text-slate-400'>
