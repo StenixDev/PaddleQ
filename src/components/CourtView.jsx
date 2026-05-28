@@ -52,15 +52,17 @@ export default function CourtView() {
             ))}
           </div>
 
-          <div className=' p-2 text-center pt-6'>
-            <button
-              onClick={() => dispatch({ type: 'generateMatches' })}
-              className='primary-action'
-            >
-              <Shuffle className='h-4 w-4' />
-              Generate Next Matches
-            </button>
-          </div>
+          {state.activeMatches.length !== state.courtCount && (
+            <div className=' p-2 text-center pt-6'>
+              <button
+                onClick={() => dispatch({ type: 'generateMatches' })}
+                className='primary-action'
+              >
+                <Shuffle className='h-4 w-4' />
+                Generate Matches
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <div className='rounded-lg border border-dashed border-white/10 bg-white/[0.04] p-6 text-center shadow-inner backdrop-blur-md'>
@@ -69,7 +71,7 @@ export default function CourtView() {
             className='primary-action'
           >
             <Shuffle className='h-4 w-4' />
-            Generate Next Matches
+            Generate Matches
           </button>
         </div>
       )}
