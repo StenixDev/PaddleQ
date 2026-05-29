@@ -18,7 +18,7 @@ export default function PartnerLockManager() {
     <section className='glass-panel p-4'>
       <div className='mb-4 flex items-center gap-2'>
         <Link2 className='h-5 w-5 text-ball-300' />
-        <h2 className='text-lg font-semibold text-slate-100'>Paired Partner</h2>
+        <h2 className='text-lg font-semibold text-slate-100'>Paired Players</h2>
       </div>
       <div className='grid gap-2 sm:grid-cols-[1fr_1fr_auto]'>
         <SelectPlayer
