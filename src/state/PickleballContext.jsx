@@ -246,6 +246,11 @@ function reducer(state, action) {
       );
       const generated = generateNextMatches({
         ...state,
+        players: state.players.map((player) =>
+          activePlayerIds.has(player.id)
+            ? { ...player, isResting: true }
+            : player,
+        ),
         queue: availableQueue,
         courtCount: openCourts.length,
       });
