@@ -31,6 +31,29 @@ const initialState = {
   shareMeta: null,
 };
 
+function normalizeQueue(players, queue) {
+  const eligibleIds = players
+    .filter((player) => !player.isResting)
+    .map((player) => player.id);
+  const eligibleSet = new Set(eligibleIds);
+  const seen = new Set();
+  const normalized = [];
+
+  queue.forEach((id) => {
+    if (!eligibleSet.has(id) || seen.has(id)) return;
+    seen.add(id);
+    normalized.push(id);
+  });
+
+  eligibleIds.forEach((id) => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    normalized.push(id);
+  });
+
+  return normalized;
+}
+
 function loadState() {
   try {
     const searchParams = new URLSearchParams(window.location.search);
@@ -83,10 +106,9 @@ function loadState() {
         scoreB: '',
         ...match,
       })),
-      queue: parsed.queue.filter(
-        (id) =>
-          activeIds.has(id) &&
-          !players.find((player) => player.id === id)?.isResting,
+      queue: normalizeQueue(
+        players,
+        (parsed.queue || []).filter((id) => activeIds.has(id)),
       ),
     };
   } catch {
@@ -194,7 +216,7 @@ function reducer(state, action) {
         : isInActiveMatch || state.queue.includes(action.id)
           ? state.queue
           : [...state.queue, action.id];
-      return { ...state, players: nextPlayers, queue: nextQueue };
+      return { ...state, players: nextPlayers, queue: normalizeQueue(nextPlayers, nextQueue) };
     }
     case 'reorderQueue': {
       const next = [...state.queue];
@@ -218,7 +240,10 @@ function reducer(state, action) {
 
       if (!openCourts.length) return state;
 
-      const availableQueue = state.queue.filter((id) => !activePlayerIds.has(id));
+      const normalizedQueue = normalizeQueue(state.players, state.queue);
+      const availableQueue = normalizedQueue.filter(
+        (id) => !activePlayerIds.has(id),
+      );
       const generated = generateNextMatches({
         ...state,
         queue: availableQueue,
@@ -228,7 +253,7 @@ function reducer(state, action) {
         ...match,
         court: openCourts[index],
       }));
-      const activeQueue = state.queue.filter((id) => activePlayerIds.has(id));
+      const activeQueue = normalizedQueue.filter((id) => activePlayerIds.has(id));
       const nextQueue = [
         ...activeQueue,
         ...generated.queue.filter((id) => !activePlayerIds.has(id)),
@@ -237,7 +262,7 @@ function reducer(state, action) {
       return {
         ...state,
         activeMatches: [...state.activeMatches, ...matches],
-        queue: nextQueue,
+        queue: normalizeQueue(state.players, nextQueue),
       };
     }
     case 'substitutePlayer': {
@@ -333,14 +358,16 @@ function reducer(state, action) {
         return player;
       });
       const played = [...match.teamA, ...match.teamB];
-      const waiting = state.queue.filter((id) => !played.includes(id));
+      const waiting = normalizeQueue(nextPlayers, state.queue).filter(
+        (id) => !played.includes(id),
+      );
       const returningPlayers = played.filter(
         (id) => !nextPlayers.find((player) => player.id === id)?.isResting,
       );
       return {
         ...state,
         players: nextPlayers,
-        queue: [...waiting, ...returningPlayers],
+        queue: normalizeQueue(nextPlayers, [...waiting, ...returningPlayers]),
         activeMatches: state.activeMatches.filter(
           (item) => item.id !== action.matchId,
         ),

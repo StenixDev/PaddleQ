@@ -99,14 +99,26 @@ function scoreMatch(teamA, teamB, stats, history, lockedPartners) {
   );
 
   return (
-    gameSpread * 85 +
-    totalGames * 9 +
+    gameSpread * 220 +
+    totalGames * 45 +
     outcomeScore(all, stats) * 18 +
     scoreTeam(teamA, stats, history, lockedPartners) +
     scoreTeam(teamB, stats, history, lockedPartners) +
     opponentRepeats * 5 +
     (matchWasRecent(teamA, teamB, history) ? 90 : 0)
   );
+}
+
+function scorePlayerGroup(group, activeIds, stats, teamScore) {
+  const games = group.map((id) => stats[id]?.games || 0);
+  const totalGames = games.reduce((sum, value) => sum + value, 0);
+  const maxGames = Math.max(...games);
+  const waitingPenalty = group.reduce(
+    (sum, id, index) => sum + activeIds.indexOf(id) * (index + 1),
+    0,
+  );
+
+  return totalGames * 1000 + maxGames * 120 + waitingPenalty + teamScore * 0.1;
 }
 
 function teamOptions(group, stats, history, lockedPartners) {
@@ -145,17 +157,29 @@ export function generateNextMatches({
   lockedPartners,
 }) {
   // Only active players
-  const activeIds = queue.filter((id) =>
+  const queuedActiveIds = queue.filter((id) =>
     players.some((player) => player.id === id && !player.isResting),
   );
+  const queuedSet = new Set(queuedActiveIds);
+  const activeIds = [
+    ...queuedActiveIds,
+    ...players
+      .filter((player) => !player.isResting && !queuedSet.has(player.id))
+      .map((player) => player.id),
+  ];
 
   const stats = getPlayerStats(players, history);
+  const balancedIds = [...activeIds].sort(
+    (a, b) =>
+      (stats[a]?.games || 0) - (stats[b]?.games || 0) ||
+      activeIds.indexOf(a) - activeIds.indexOf(b),
+  );
 
   const selected = [];
   const used = new Set();
 
   for (let court = 1; court <= courtCount; court += 1) {
-    const pool = activeIds.filter((id) => !used.has(id));
+    const pool = balancedIds.filter((id) => !used.has(id));
     if (pool.length < 4) break;
 
     const best = combination(pool, 4)
@@ -163,11 +187,11 @@ export function generateNextMatches({
       .map((group) => {
         const options = teamOptions(group, stats, history, lockedPartners);
         if (!options.length) return null;
-        const waitingPenalty = group.reduce(
-          (sum, id, index) => sum + activeIds.indexOf(id) * (index + 1),
-          0,
-        );
-        return { group, ...options[0], score: options[0].score + waitingPenalty };
+        return {
+          group,
+          ...options[0],
+          score: scorePlayerGroup(group, activeIds, stats, options[0].score),
+        };
       })
       .filter(Boolean)
       .sort((a, b) => a.score - b.score)[0];
