@@ -165,6 +165,32 @@ function matchRespectsPartnerLocks(match, lockedPartners) {
   });
 }
 
+function getPartnerPairings(match) {
+  const [p1, p2] = match.teamA;
+  const [p3, p4] = match.teamB;
+  return [
+    {
+      teamA: [p1, p2],
+      teamB: [p3, p4],
+    },
+    {
+      teamA: [p1, p3],
+      teamB: [p2, p4],
+    },
+    {
+      teamA: [p1, p4],
+      teamB: [p2, p3],
+    },
+  ];
+}
+
+function sameTeams(first, second) {
+  return (
+    first.teamA.join('|') === second.teamA.join('|') &&
+    first.teamB.join('|') === second.teamB.join('|')
+  );
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'addPlayer': {
@@ -327,6 +353,37 @@ function reducer(state, action) {
 
       return { ...state, activeMatches: nextMatches, queue: nextQueue };
     }
+    case 'cycleMatchPartners':
+      return {
+        ...state,
+        activeMatches: state.activeMatches.map((match) => {
+          if (match.id !== action.matchId) return match;
+          const pairings = getPartnerPairings(match)
+            .map((pairing) => ({ ...match, ...pairing }))
+            .filter((pairing) =>
+              matchRespectsPartnerLocks(pairing, state.lockedPartners),
+            );
+          const currentIndex = pairings.findIndex((pairing) =>
+            sameTeams(pairing, match),
+          );
+          const nextPairing =
+            pairings[(currentIndex + 1 + pairings.length) % pairings.length];
+          return nextPairing || match;
+        }),
+      };
+    case 'setMatchPartnerPairing':
+      return {
+        ...state,
+        activeMatches: state.activeMatches.map((match) => {
+          if (match.id !== action.matchId) return match;
+          const pairings = getPartnerPairings(match)
+            .map((pairing) => ({ ...match, ...pairing }))
+            .filter((pairing) =>
+              matchRespectsPartnerLocks(pairing, state.lockedPartners),
+            );
+          return pairings[action.pairingIndex] || match;
+        }),
+      };
     case 'updateMatchScore':
       return {
         ...state,
